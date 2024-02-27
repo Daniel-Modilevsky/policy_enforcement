@@ -1,7 +1,11 @@
 import json
 
 import pytest
-from stage2 import PolicyAPI
+
+from src.main import PolicyAPI
+
+
+# from stage2 import PolicyAPI
 
 
 @pytest.fixture

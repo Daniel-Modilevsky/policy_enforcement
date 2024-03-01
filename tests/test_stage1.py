@@ -1,7 +1,8 @@
 import json
 
 import pytest
-from stage1 import PolicyAPI
+
+from src.skeleton.stage1 import PolicyAPI
 
 
 @pytest.fixture

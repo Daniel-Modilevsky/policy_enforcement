@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from src.main import PolicyAPI
+from src.skeleton.stage1 import PolicyAPI
 
 
 @pytest.fixture

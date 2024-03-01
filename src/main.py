@@ -5,7 +5,6 @@ from src.skeleton.stage1 import PolicyAPI
 app = Flask(__name__)
 logger = setup_logger()
 
-
 policy_api = PolicyAPI()
 
 

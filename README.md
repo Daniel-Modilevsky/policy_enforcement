@@ -1,4 +1,4 @@
-# Policy Enforcement Assessment
+# Policy Enforcement
 
 This repository contains a simple HTTP API server application written in Python that...
 
@@ -28,5 +28,6 @@ Run the following command to start the API server:
 
 python3 -m venv venv
 . venv/bin/activate
+poetry install
+poetry run python src/main.py
 ```
-

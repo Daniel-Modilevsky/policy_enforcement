@@ -3,7 +3,7 @@ import uuid
 from typing import List
 
 from src.models.Policy import Policy
-from src.utils.policy_utils import extract_json_from_string, from_policy_to_json
+from src.utils.policy_utils import extract_json_from_string
 
 
 class PolicyAPI:
@@ -27,7 +27,7 @@ class PolicyAPI:
             raise ValueError(ex)
 
     def list_policies(self) -> str:
-        policies = from_policy_to_json(policies=self.policies)
+        policies = self.from_policy_to_json(policies=self.policies)
         return json.dumps(policies).replace('\n', '')
 
     def __is_valid_policy(self, json_input: str) -> bool:
@@ -41,3 +41,7 @@ class PolicyAPI:
 
         if any(policy.name == policy_data['name'] for policy in self.policies):
             raise ValueError("Policy name must be unique")
+
+    @classmethod
+    def from_policy_to_json(cls, policies: List[Policy]) -> str:
+        return json.dumps([dict(policy) for policy in policies], indent=2)

@@ -49,8 +49,9 @@ def get_policy_route(policy_id):
 @app.route('/policies/<policy_id>', methods=['PUT'])
 def update_policy_route(policy_id):
     try:
-        updated_policy_data = request.get_json()
-        return policy_api.update_policy(policy_id, updated_policy_data)
+        updated_policy_data = request.get_data()
+        policy_api.update_policy(policy_id, updated_policy_data)
+        return f'Update successfully Policy: {policy_id}', 200
     except Exception as ex:
         logger.error('Error occurred: %s', str(ex), exc_info=True)
         return {"error": str(ex)}, 400
@@ -59,7 +60,8 @@ def update_policy_route(policy_id):
 @app.route('/policies/<policy_id>', methods=['DELETE'])
 def delete_policy_route(policy_id):
     try:
-        return policy_api.delete_policy(policy_id)
+        policy_api.delete_policy(policy_id)
+        return f'Delete successfully Policy: {policy_id}', 200
     except Exception as ex:
         logger.error('Error occurred: %s', str(ex), exc_info=True)
         return {"error": str(ex)}, 400

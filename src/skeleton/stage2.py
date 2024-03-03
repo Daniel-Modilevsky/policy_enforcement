@@ -33,7 +33,7 @@ class PolicyAPI:
             raise ValueError(ex)
 
     def read_policy(self, json_identifier: str) -> str:
-        policy_id = json_identifier
+        policy_id = json.loads(json_identifier)
         policy = self.policies.get(policy_id)
         if not policy:
             raise ValueError(f"Missing Policy by ID: {policy_id}")
@@ -41,7 +41,7 @@ class PolicyAPI:
         # return jsonify({"error": f"Policy with ID {policy_id} not found"}), 404
 
     def update_policy(self, json_identifier: str, json_input: str) -> None:
-        policy_id = json_identifier
+        policy_id = json.loads(json_identifier)
         policy = self.policies.get(policy_id)
         self.__is_valid_policy_on_update(json_input=json_input, policy_id=policy_id)
         updated_policy_fields = extract_json_from_string(json_input=json_input)
@@ -54,14 +54,14 @@ class PolicyAPI:
         self.policies[policy_id] = updated_policy
 
     def delete_policy(self, json_identifier: str) -> None:
-        policy_id = json_identifier
+        policy_id = json.loads(json_identifier)
         policy = self.policies.get(policy_id)
         if not policy:
             raise ValueError(f"Missing Policy by ID: {policy_id}")
         del self.policies[policy_id]
 
     def list_policies(self) -> str:
-        return json.dumps(self.from_policy_to_json(policies=list(self.policies.values())))
+        return self.from_policy_to_json(policies=list(self.policies.values()))
 
     def __is_policy_name_exists(self, policy_name: str, policy_type: PolicyType) -> bool:
         """
@@ -102,6 +102,8 @@ class PolicyAPI:
 
         new_type = updated_policy_fields.get('type', None)
         new_name = updated_policy_fields.get('name', None)
+        if not new_type or new_name:
+            return
         if new_type and not any(new_type == member.value for member in PolicyType):
             raise ValueError(f"Invalid policy type: {new_type}")
         new_type = updated_policy_fields.get('type', policy.type)

@@ -1,3 +1,5 @@
+import json
+
 from flask import Flask, request
 from config.logger import setup_logger
 from src.skeleton.stage2 import PolicyAPI
@@ -41,7 +43,7 @@ def list_policies_route():
 @app.route('/policies/<policy_id>', methods=['GET'])
 def get_policy_route(policy_id):
     try:
-        return policy_api.read_policy(json_identifier=policy_id)
+        return policy_api.read_policy(json_identifier=json.dumps(policy_id))
     except ValueError as ex:
         logger.error('Error occurred: %s', str(ex), exc_info=True)
         return {"error": str(ex)}, 400
@@ -54,7 +56,7 @@ def get_policy_route(policy_id):
 def update_policy_route(policy_id):
     try:
         updated_policy_data = request.get_data()
-        policy_api.update_policy(policy_id, updated_policy_data)
+        policy_api.update_policy(json_identifier=json.dumps(policy_id), json_input=updated_policy_data)
         return f'Update successfully Policy: {policy_id}', 200
     except ValueError as ex:
         logger.error('Error occurred: %s', str(ex), exc_info=True)
@@ -67,7 +69,7 @@ def update_policy_route(policy_id):
 @app.route('/policies/<policy_id>', methods=['DELETE'])
 def delete_policy_route(policy_id):
     try:
-        policy_api.delete_policy(policy_id)
+        policy_api.delete_policy(json_identifier=json.dumps(policy_id))
         return f'Delete successfully Policy: {policy_id}', 200
     except ValueError as ex:
         logger.error('Error occurred: %s', str(ex), exc_info=True)
@@ -75,7 +77,6 @@ def delete_policy_route(policy_id):
     except Exception as ex:
         logger.error('Un maintained Error occurred: %s', str(ex), exc_info=True)
         return {"error": str(ex)}, 500
-        S
 
 
 if __name__ == "__main__":

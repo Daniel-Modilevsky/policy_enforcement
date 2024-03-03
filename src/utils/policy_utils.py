@@ -5,9 +5,6 @@ from src.models.Policy import Policy
 LOOP_TRASH_HOLD = 5
 
 
-def from_policy_to_json(policies: List[Policy]) -> str:
-    return json.dumps([dict(policy) for policy in policies], indent=2)
-
 
 def extract_json_from_string(json_input: str) -> dict:
     for index in range(LOOP_TRASH_HOLD):

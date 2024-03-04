@@ -5,6 +5,7 @@ from enum import Enum
 class PolicyType(Enum):
     ARUPA = 'Arupa'
     FRISCO = 'Frisco'
+    DEFAULT = 'Default'
 
 
 class Policy(BaseModel):
@@ -18,7 +19,7 @@ class Policy(BaseModel):
             "id": self.id,
             "name": self.name,
             "description": self.description,
-            "type": self.type.value
+            "type": self.type.value,
         }
 
     @classmethod
@@ -27,5 +28,5 @@ class Policy(BaseModel):
             id=data["id"],
             name=data["name"],
             description=data["description"],
-            type=PolicyType[data["type"]]
+            type=PolicyType[data["type"]],
         )

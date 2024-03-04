@@ -2,7 +2,7 @@ import json
 import uuid
 from typing import List
 
-from src.models.Policy import Policy
+from src.models.policy import Policy
 from src.utils.policy_utils import extract_json_from_string
 
 

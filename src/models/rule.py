@@ -12,6 +12,8 @@
 from pydantic import BaseModel, constr
 from ipaddress import IPv4Network, IPv6Network
 
+from src.models.policy import PolicyType
+
 
 # todo: manage the names separately?
 # if this was db the index was also by name

@@ -2,9 +2,14 @@ import json
 import uuid
 from typing import List, Dict
 
-from src.models.policy import Policy, PolicyType
+from src.models.policy import Policy
 from src.models.rule import Rule
-from src.utils.policy_utils import extract_json_from_string
+from src.utils.policy_utils import extract_json_from_string, is_valid_policy_on_create, is_valid_policy_on_update, \
+    from_policy_to_json
+from src.utils.rule_utils import is_valid_rule_on_create, is_valid_rule_on_update
+
+
+# todo: rule type by the fields, if I got x + y it is a and if i got w + u it is b. (create and update)
 
 
 class PolicyAPI:
@@ -19,7 +24,7 @@ class PolicyAPI:
 
     def create_policy(self, json_input: str) -> str:
         try:
-            self.__is_valid_policy_on_create(json_input=json_input)
+            is_valid_policy_on_create(json_input=json_input, policies=self.policies)
             policy_data = extract_json_from_string(json_input=json_input)
             policy = Policy(
                 id=str(uuid.uuid4()),
@@ -40,12 +45,11 @@ class PolicyAPI:
         if not policy:
             raise ValueError(f"Missing Policy by ID: {policy_id}")
         return json.dumps(policy.to_dict())
-        # return jsonify({"error": f"Policy with ID {policy_id} not found"}), 404
 
     def update_policy(self, json_identifier: str, json_input: str) -> None:
         policy_id = json.loads(json_identifier)
         policy = self.policies.get(policy_id)
-        self.__is_valid_policy_on_update(json_input=json_input, policy_id=policy_id)
+        is_valid_policy_on_update(json_input=json_input, policy_id=policy_id, policies=self.policies)
         updated_policy_fields = extract_json_from_string(json_input=json_input)
         updated_policy = Policy(
             id=policy_id,
@@ -63,74 +67,23 @@ class PolicyAPI:
         del self.policies[policy_id]
 
     def list_policies(self) -> str:
-        return self.from_policy_to_json(policies=list(self.policies.values()))
-
-    def __is_policy_name_exists(self, policy_name: str, policy_type: PolicyType) -> bool:
-        """
-        An Arupa policy may not have the same name as another Arupa policy.
-        Multiple Frisco policies may have the same name.
-        """
-        return any(
-            policy.name == policy_name and policy_type == PolicyType.ARUPA.value for policy in self.policies.values())
-
-    def __is_valid_policy_on_create(self, json_input: str) -> None:
-        policy_data = extract_json_from_string(json_input=json_input)
-        required_fields = ['name', 'description', 'type']
-        for field in required_fields:
-            if field not in policy_data:
-                raise ValueError(f"Missing required field: {field}")
-        if not policy_data['name'].isalnum() or '_' in policy_data['name']:
-            raise ValueError("Name must consist of alphanumeric characters and underscores only")
-
-        policy_name_already_exists = self.__is_policy_name_exists(policy_name=policy_data['name'],
-                                                                  policy_type=policy_data['type'])
-        if policy_name_already_exists:
-            raise ValueError(f"Policy name must be unique for '{PolicyType.ARUPA}'")
-
-    def __is_valid_policy_on_update(self, policy_id: str, json_input) -> None:
-        policy = self.policies.get(policy_id)
-        if not policy_id or not json_input:
-            raise ValueError("Both json_identifier and json_input are required.")
-        if not policy:
-            raise ValueError(f"Missing Policy by ID: {policy_id}")
-        updated_policy_fields = extract_json_from_string(json_input=json_input)
-        optional_fields = ['name', 'description', 'type']
-        is_one_of_optional_fields_exists = False
-        for field in optional_fields:
-            if field in updated_policy_fields:
-                is_one_of_optional_fields_exists = True
-        if not is_one_of_optional_fields_exists:
-            raise ValueError(f"There is nothing to update in this request")
-
-        new_type = updated_policy_fields.get('type', None)
-        new_name = updated_policy_fields.get('name', None)
-        if not new_type or new_name:
-            return
-        if new_type and not any(new_type == member.value for member in PolicyType):
-            raise ValueError(f"Invalid policy type: {new_type}")
-        new_type = updated_policy_fields.get('type', policy.type)
-        if new_type and new_name and self.__is_policy_name_exists(policy_name=new_name, policy_type=new_type):
-            raise ValueError(
-                f"A policy with the name '{updated_policy_fields['name']}' already exists for type '{new_type}'.")
-
-    @classmethod
-    def from_policy_to_json(cls, policies: List[Policy]) -> str:
-        return json.dumps([policy.to_dict() for policy in policies], indent=2)
+        return from_policy_to_json(policies=list(self.policies.values()))
 
     def create_rule(self, json_policy_identifier: str, rule_data: str) -> str:
         policy_id = json_policy_identifier
         policy = self.policies.get(policy_id)
         if not policy:
             raise ValueError(f"Missing Policy by ID: {policy_id}")
-        policy_data = extract_json_from_string(json_input=rule_data)
-        # todo: validation
+        rule_data_as_json = extract_json_from_string(json_input=rule_data)
+        is_valid_rule_on_create(json_input=rule_data, policy_id=policy_id, policies=self.policies, rules=self.rules)
         rule = Rule(
             id=str(uuid.uuid4()),
             policy_id=policy_id,
-            name=policy_data.get('name', None),
-            ip_proto=policy_data.get('ip_proto', None),
-            source_port=policy_data.get('source_port', None)
+            name=rule_data_as_json.get('name', None),
+            ip_proto=rule_data_as_json.get('ip_proto', None),
+            source_port=rule_data_as_json.get('source_port', None)
         )
+
         if rule.policy_id not in self.rules:
             self.rules[rule.policy_id] = []
         self.rules[rule.policy_id].append(rule)
@@ -156,6 +109,8 @@ class PolicyAPI:
         rule = next((rule.to_dict() for rule in self.rules.get(policy_id, []) if rule.id == rule_id), None)
         if not rule:
             raise ValueError(f"Missing rule by ID: {rule_id}")
+        is_valid_rule_on_update(json_input=json_rule_input, policy_id=policy_id, policies=self.policies,
+                                rules=self.rules)
         updated_rule = Rule(
             id=rule_id,
             policy_id=policy_id,
@@ -165,7 +120,6 @@ class PolicyAPI:
         )
         self.rules[policy_id].pop(id == rule_id)
         self.rules[policy_id].append(updated_rule)
-
 
     def delete_rule(self, json_identifier: str) -> None:
         rule_data = extract_json_from_string(json_input=json_identifier)
@@ -186,7 +140,3 @@ class PolicyAPI:
             raise ValueError(f"Missing Policy by ID: {policy_id}")
         rules_list = [rule.to_dict() for rule in self.rules[policy_id]]
         return json.dumps(rules_list)
-
-# todo: change to named validation without a lot of copy paste
-# todo: get data move to smaller named functions
-# manage here just the functions that I need to the assignment, and in utils all the other.

@@ -1,5 +1,4 @@
 import json
-
 from flask import Flask, request
 from config.logger import setup_logger
 from src.skeleton.stage3 import PolicyAPI

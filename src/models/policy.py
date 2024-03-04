@@ -5,6 +5,7 @@ from enum import Enum
 class PolicyType(Enum):
     ARUPA = 'Arupa'
     FRISCO = 'Frisco'
+    DEFAULT = 'Default'
 
 
 class Policy(BaseModel):

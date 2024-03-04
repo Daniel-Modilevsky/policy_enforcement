@@ -2,11 +2,12 @@ import json
 import uuid
 from typing import List, Dict
 
-from src.models.policy import Policy
-from src.models.rule import Rule
+from src.models.policy import Policy, PolicyType
+from src.models.rule import Rule, ArupaRule, FriscoRule
 from src.utils.policy_utils import extract_json_from_string, is_valid_policy_on_create, is_valid_policy_on_update, \
     from_policy_to_json
-from src.utils.rule_utils import is_valid_rule_on_create, is_valid_rule_on_update
+from src.utils.rule_utils import is_valid_rule_on_create, is_valid_rule_on_update, classify_rule_type, \
+    create_rule_by_policy_type, update_rule_by_policy_type
 
 
 # todo: rule type by the fields, if I got x + y it is a and if i got w + u it is b. (create and update)
@@ -76,14 +77,8 @@ class PolicyAPI:
             raise ValueError(f"Missing Policy by ID: {policy_id}")
         rule_data_as_json = extract_json_from_string(json_input=rule_data)
         is_valid_rule_on_create(json_input=rule_data, policy_id=policy_id, policies=self.policies, rules=self.rules)
-        rule = Rule(
-            id=str(uuid.uuid4()),
-            policy_id=policy_id,
-            name=rule_data_as_json.get('name', None),
-            ip_proto=rule_data_as_json.get('ip_proto', None),
-            source_port=rule_data_as_json.get('source_port', None)
-        )
-
+        rule_type = classify_rule_type(json_input=rule_data, policy_type=policy.type)
+        rule = create_rule_by_policy_type(rule_type=rule_type, rule_data_as_json=rule_data_as_json, policy_id=policy_id)
         if rule.policy_id not in self.rules:
             self.rules[rule.policy_id] = []
         self.rules[rule.policy_id].append(rule)
@@ -111,13 +106,8 @@ class PolicyAPI:
             raise ValueError(f"Missing rule by ID: {rule_id}")
         is_valid_rule_on_update(json_input=json_rule_input, policy_id=policy_id, policies=self.policies,
                                 rules=self.rules)
-        updated_rule = Rule(
-            id=rule_id,
-            policy_id=policy_id,
-            name=updated_rule_fields.get('name', rule.get('name')),
-            ip_proto=updated_rule_fields.get('ip_proto', rule.get('ip_proto')),
-            source_port=updated_rule_fields.get('source_port', rule.get('source_port')),
-        )
+        rule_type = classify_rule_type(json_input=json_rule_input, policy_type=policy.type)
+        updated_rule = update_rule_by_policy_type(rule_type=rule_type, rule_data_as_json=updated_rule_fields, policy_id=policy_id, old_rule=rule)
         self.rules[policy_id].pop(id == rule_id)
         self.rules[policy_id].append(updated_rule)
 

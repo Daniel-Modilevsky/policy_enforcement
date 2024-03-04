@@ -1,23 +1,6 @@
-# Each policy is associated with a set of rules.
-# A rule is one of the definitions specifying a type of network traffic. Rules for Arupa policies and Frisco policies are different.
-# Each Arupa rule has the following fields:
-# name - free text
-# ip_proto - an IP protocol number source_port - a port number source_subnet - an IP subnet
-# Arupa rule names must be unique within each policy. Each Frisco rule has the following fields:
-# name - free text
-# ip_proto - an IP protocol number source_port - a port number source_ip - an IP address destination_ip - an IP address
-# Frisco rule names must be globally unique, even between policies.
-
-
 from pydantic import BaseModel, constr
 from ipaddress import IPv4Network, IPv6Network
 
-from src.models.policy import PolicyType
-
-
-# todo: manage the names separately?
-# if this was db the index was also by name
-# Frisco rule names must be globally unique, even between policies.
 
 class Rule(BaseModel):
     id: str

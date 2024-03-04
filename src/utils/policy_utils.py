@@ -1,6 +1,6 @@
 import json
 from typing import List
-from src.models.Policy import Policy
+from src.models.policy import Policy
 
 LOOP_TRASH_HOLD = 5
 

@@ -2,15 +2,12 @@ import json
 import uuid
 from typing import List, Dict
 
-from src.models.policy import Policy, PolicyType
-from src.models.rule import Rule, ArupaRule, FriscoRule
+from src.models.policy import Policy
+from src.models.rule import Rule
 from src.utils.policy_utils import extract_json_from_string, is_valid_policy_on_create, is_valid_policy_on_update, \
     from_policy_to_json
 from src.utils.rule_utils import is_valid_rule_on_create, is_valid_rule_on_update, classify_rule_type, \
     create_rule_by_policy_type, update_rule_by_policy_type
-
-
-# todo: rule type by the fields, if I got x + y it is a and if i got w + u it is b. (create and update)
 
 
 class PolicyAPI:

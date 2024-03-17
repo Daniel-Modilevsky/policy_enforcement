@@ -36,7 +36,7 @@ def bar_policy_identifier(api):
 
 @pytest.fixture
 def rule_policy_identifier_daniel(api):
-    policy_id = api.create_policy(
+    policy = api.create_policy(
         json.dumps(
             {
                 "name": "daniel",
@@ -45,8 +45,9 @@ def rule_policy_identifier_daniel(api):
             }
         )
     )
-    rule = api.create_rule(
-        json.loads(policy_id),
+    policy_id = json.loads(policy)
+    rule_str = api.create_rule(
+        policy_id,
         json.dumps(
             {
                 "name": "Generic Rule",
@@ -57,5 +58,33 @@ def rule_policy_identifier_daniel(api):
             }
         )
     )
-    return rule
+    rule = json.loads(rule_str)
+    return json.dumps({"policy_id": policy_id, "rule_id": rule.get('id')})
 
+
+@pytest.fixture
+def rule_policy_identifier_michael(api):
+    policy = api.create_policy(
+        json.dumps(
+            {
+                "name": "michael",
+                "description": "michael policy",
+                "type": "Arupa",
+            }
+        )
+    )
+    policy_id = json.loads(policy)
+    rule_str = api.create_rule(
+        policy_id,
+        json.dumps(
+            {
+                "name": "Generic Rule 2",
+                "ip_proto": "192.168.0.0/24",
+                "source_ip": "192.168.0.0/24",
+                "destination_ip": "192.168.0.0/24",
+                "source_port": 80
+            }
+        )
+    )
+    rule = json.loads(rule_str)
+    return json.dumps({"policy_id": policy_id, "rule_id": rule.get('id')})

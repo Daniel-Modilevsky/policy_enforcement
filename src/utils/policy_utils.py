@@ -3,18 +3,14 @@ from typing import Dict, List
 
 from src.models.policy import PolicyType, Policy
 
-LOOP_TRASH_HOLD = 5
-
 
 def extract_json_from_string(json_input: str) -> dict:
-    for index in range(LOOP_TRASH_HOLD):
-        try:
-            json_data = json.loads(json_input)
-            if isinstance(json_data, dict):
-                return json_data
-            json_input = json_data
-        except json.JSONDecodeError as ex:
-            raise ValueError(f"Invalid JSON format: {ex}")
+    try:
+        json_data = json.loads(json_input)
+        if isinstance(json_data, dict):
+            return json_data
+    except json.JSONDecodeError as ex:
+        raise ValueError(f"Invalid JSON format: {ex}")
 
 
 def is_policy_name_exists(policy_name: str, policy_type: PolicyType, policies: Dict[str, Policy]) -> bool:
@@ -36,7 +32,7 @@ def is_valid_policy_on_create(json_input: str, policies: Dict[str, Policy]) -> N
         raise ValueError("Name must consist of alphanumeric characters and underscores only")
 
     policy_name_already_exists = is_policy_name_exists(policy_name=policy_data['name'],
-                                                              policy_type=policy_data['type'], policies=policies)
+                                                       policy_type=policy_data['type'], policies=policies)
     if policy_name_already_exists:
         raise ValueError(f"Policy name must be unique for '{PolicyType.ARUPA}'")
 

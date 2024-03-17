@@ -21,12 +21,3 @@ class Policy(BaseModel):
             "description": self.description,
             "type": self.type.value,
         }
-
-    @classmethod
-    def from_dict(cls, data):
-        return cls(
-            id=data["id"],
-            name=data["name"],
-            description=data["description"],
-            type=PolicyType[data["type"]],
-        )

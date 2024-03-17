@@ -4,10 +4,10 @@ from typing import List, Dict
 
 from src.models.policy import Policy
 from src.models.rule import Rule
-from src.utils.policy_utils import extract_json_from_string, is_valid_policy_on_create, is_valid_policy_on_update, \
-    from_policy_to_json
+from src.utils.policy_utils import extract_json_from_string, from_policy_to_json
 from src.utils.rule_utils import is_valid_rule_on_create, is_valid_rule_on_update, classify_rule_type, \
     create_rule_by_policy_type, update_rule_by_policy_type
+from src.validation.policy import validate_policy_on_create, validate_policy_on_update
 
 
 class PolicyAPI:
@@ -22,7 +22,7 @@ class PolicyAPI:
 
     def create_policy(self, json_input: str) -> str:
         try:
-            is_valid_policy_on_create(json_input=json_input, policies=self.policies)
+            validate_policy_on_create(json_input=json_input, policies=self.policies)
             policy_data = extract_json_from_string(json_input=json_input)
             policy = Policy(
                 id=str(uuid.uuid4()),
@@ -47,7 +47,7 @@ class PolicyAPI:
     def update_policy(self, json_identifier: str, json_input: str) -> None:
         policy_id = json.loads(json_identifier)
         policy = self.policies.get(policy_id)
-        is_valid_policy_on_update(json_input=json_input, policy_id=policy_id, policies=self.policies)
+        validate_policy_on_update(json_input=json_input, policy_id=policy_id, policies=self.policies)
         updated_policy_fields = extract_json_from_string(json_input=json_input)
         updated_policy = Policy(
             id=policy_id,

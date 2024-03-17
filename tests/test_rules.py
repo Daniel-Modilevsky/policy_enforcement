@@ -30,3 +30,59 @@ class TestReadPolicyRule:
         assert api.read_rule(rule_policy_identifier_daniel) != api.read_rule(
             rule_policy_identifier_michael
         )
+
+
+class TestCreatePolicyRule:
+    def test_create_valid_rules_with_same_name(self, api, foo_policy_identifier):
+        policy_id = json.loads(foo_policy_identifier)
+        rule_str = api.create_rule(
+            policy_id,
+            json.dumps(
+                {
+                    "name": "Generic Rule",
+                    "ip_proto": "192.168.0.0/24",
+                    "source_ip": "192.168.0.0/24",
+                    "destination_ip": "192.168.0.0/24",
+                    "source_port": 80
+                }
+            )
+        )
+        rule = json.loads(rule_str)
+        rule_str = api.create_rule(
+            policy_id,
+            json.dumps(
+                {
+                    "name": "Generic Rule",
+                    "ip_proto": "192.168.0.0/24",
+                    "source_ip": "192.168.0.0/24",
+                    "destination_ip": "192.168.0.0/24",
+                    "source_port": 80
+                }
+            )
+        )
+        rule2 = json.loads(rule_str)
+        assert rule
+        assert rule2
+
+
+class TestListPolicyRules:
+    def test_list_one(self, api, rule_policy_identifier_daniel):
+        rule_data = json.loads(rule_policy_identifier_daniel)
+        policy_id = rule_data.get('policy_id', None)
+        rule_id = rule_data.get('rule_id', None)
+        policy = json.loads(api.read_policy(json.dumps(policy_id)))
+        assert policy
+        rules = json.loads(api.list_rules(json.dumps(policy_id)))
+        assert len(rules) == 1
+        [rule] = rules
+        assert isinstance(policy, dict)
+        assert rule["name"] == 'Generic Rule'
+        assert rule["id"] == rule_id
+
+
+class TestDeletePolicyRule:
+    def test_no_read_after_delete(self, api, rule_policy_identifier_daniel):
+        api.read_rule(rule_policy_identifier_daniel)
+        api.delete_rule(rule_policy_identifier_daniel)
+        with pytest.raises(Exception):
+            api.read_policy(rule_policy_identifier_daniel)

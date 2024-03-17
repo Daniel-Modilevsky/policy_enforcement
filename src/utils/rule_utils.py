@@ -52,18 +52,18 @@ def update_rule_by_policy_type(rule_type: PolicyType, rule_data_as_json: dict, p
         return ArupaRule(
             id=str(uuid.uuid4()),
             policy_id=policy_id,
-            name=rule_data_as_json.get('name', old_rule.name),
-            ip_proto=rule_data_as_json.get('ip_proto', old_rule.ip_proto),
-            source_port=rule_data_as_json.get('source_port', old_rule.source_port),
+            name=rule_data_as_json.get('name', old_rule.get('name')),
+            ip_proto=rule_data_as_json.get('ip_proto', old_rule.get('ip_proto')),
+            source_port=rule_data_as_json.get('source_port', old_rule.get('source_port')),
             source_subnet=rule_data_as_json.get('source_subnet', None)
         )
     elif rule_type == PolicyType.FRISCO:
         return FriscoRule(
             id=str(uuid.uuid4()),
             policy_id=policy_id,
-            name=rule_data_as_json.get('name', old_rule.name),
-            ip_proto=rule_data_as_json.get('ip_proto', old_rule.ip_proto),
-            source_port=rule_data_as_json.get('source_port', old_rule.source_port),
+            name=rule_data_as_json.get('name', old_rule.get('name')),
+            ip_proto=rule_data_as_json.get('ip_proto', old_rule.get('ip_proto')),
+            source_port=rule_data_as_json.get('source_port', old_rule.get('source_port')),
             source_ip=rule_data_as_json.get('source_ip', None),
             destination_ip=rule_data_as_json.get('destination_ip', None)
         )
@@ -71,7 +71,7 @@ def update_rule_by_policy_type(rule_type: PolicyType, rule_data_as_json: dict, p
         return Rule(
             id=str(uuid.uuid4()),
             policy_id=policy_id,
-            name=rule_data_as_json.get('name', old_rule.name),
-            ip_proto=rule_data_as_json.get('ip_proto', old_rule.ip_proto),
-            source_port=rule_data_as_json.get('source_port', old_rule.source_port)
+            name=rule_data_as_json.get('name', old_rule.get('name')),
+            ip_proto=rule_data_as_json.get('ip_proto', old_rule.get('ip_proto')),
+            source_port=rule_data_as_json.get('source_port', old_rule.get('source_port'))
         )

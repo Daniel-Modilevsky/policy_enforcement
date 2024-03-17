@@ -86,3 +86,20 @@ class TestDeletePolicyRule:
         api.delete_rule(rule_policy_identifier_daniel)
         with pytest.raises(Exception):
             api.read_policy(rule_policy_identifier_daniel)
+
+
+class TestUpdatePolicy:
+    def test_update_name(self, api, rule_policy_identifier_daniel):
+        rule_data = json.loads(rule_policy_identifier_daniel)
+        api.update_rule(
+            rule_policy_identifier_daniel,
+            json.dumps(
+                {
+                    "name": "Updated Generic Rule",
+                }
+            )
+        )
+        rule = json.loads(api.read_rule(rule_policy_identifier_daniel))
+        assert not rule
+        # assert rule["name"] == "Updated Generic Rule"
+

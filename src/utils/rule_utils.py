@@ -14,7 +14,7 @@ def classify_rule_type(json_input: str, policy_type: PolicyType) -> PolicyType:
         return PolicyType.ARUPA
     if source_ip is not None and destination_ip is not None and policy_type == PolicyType.FRISCO:
         return PolicyType.FRISCO
-    return PolicyType.DEFAULT
+    raise ValueError("Invalid policy type, or policy type is not equal to rule type properties")
 
 
 def create_rule_by_policy_type(rule_type: PolicyType, rule_data_as_json: dict, policy_id: str) -> Rule:
@@ -37,14 +37,7 @@ def create_rule_by_policy_type(rule_type: PolicyType, rule_data_as_json: dict, p
             source_ip=rule_data_as_json.get('source_ip', None),
             destination_ip=rule_data_as_json.get('destination_ip', None)
         )
-    else:
-        return Rule(
-            id=str(uuid.uuid4()),
-            policy_id=policy_id,
-            name=rule_data_as_json.get('name', None),
-            ip_proto=rule_data_as_json.get('ip_proto', None),
-            source_port=rule_data_as_json.get('source_port', None)
-        )
+    raise ValueError('Missing required fields to create Rule')
 
 
 def update_rule_by_policy_type(rule_type: PolicyType, rule_data_as_json: dict, policy_id: str, old_rule: Rule) -> Rule:
@@ -67,11 +60,4 @@ def update_rule_by_policy_type(rule_type: PolicyType, rule_data_as_json: dict, p
             source_ip=rule_data_as_json.get('source_ip', None),
             destination_ip=rule_data_as_json.get('destination_ip', None)
         )
-    else:
-        return Rule(
-            id=str(uuid.uuid4()),
-            policy_id=policy_id,
-            name=rule_data_as_json.get('name', old_rule.get('name')),
-            ip_proto=rule_data_as_json.get('ip_proto', old_rule.get('ip_proto')),
-            source_port=rule_data_as_json.get('source_port', old_rule.get('source_port'))
-        )
+    raise ValueError('Missing required fields to update Rule')

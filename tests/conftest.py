@@ -35,6 +35,19 @@ def bar_policy_identifier(api):
 
 
 @pytest.fixture
+def tom_policy_identifier(api):
+    return api.create_policy(
+        json.dumps(
+            {
+                "name": "tom",
+                "description": "tom policy",
+                "type": "Frisco",
+            }
+        )
+    )
+
+
+@pytest.fixture
 def rule_policy_identifier_daniel(api):
     policy = api.create_policy(
         json.dumps(

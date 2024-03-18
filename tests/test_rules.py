@@ -33,36 +33,68 @@ class TestReadPolicyRule:
 
 
 class TestCreatePolicyRule:
-    def test_create_valid_rules_with_same_name(self, api, foo_policy_identifier):
-        policy_id = json.loads(foo_policy_identifier)
+    def test_create_valid_rules_with_same_name(self, api, tom_policy_identifier):
+        policy_id = json.loads(tom_policy_identifier)
         rule_str = api.create_rule(
             policy_id,
             json.dumps(
                 {
                     "name": "Generic Rule",
                     "ip_proto": "192.168.0.0/24",
+                    "source_port": 80,
                     "source_ip": "192.168.0.0/24",
-                    "destination_ip": "192.168.0.0/24",
-                    "source_port": 80
+                    "destination_ip": "192.168.0.0/24"
                 }
             )
         )
         rule = json.loads(rule_str)
+        assert rule
+
+    def test_create_invalid_rule_with_no_policy_type_parameters(self, api, foo_policy_identifier):
+        with pytest.raises(Exception):
+            policy_id = json.loads(foo_policy_identifier)
+            api.create_rule(
+                policy_id,
+                json.dumps(
+                    {
+                        "name": "Generic Rule",
+                        "ip_proto": "192.168.0.0/24",
+                        "source_port": 80
+                    }
+                )
+            )
+
+
+    def test_rule_must_be_unique_for_Frisco(self, api, tom_policy_identifier):
+        policy_id = json.loads(tom_policy_identifier)
         rule_str = api.create_rule(
             policy_id,
             json.dumps(
                 {
                     "name": "Generic Rule",
                     "ip_proto": "192.168.0.0/24",
+                    "source_port": 80,
                     "source_ip": "192.168.0.0/24",
-                    "destination_ip": "192.168.0.0/24",
-                    "source_port": 80
+                    "destination_ip": "192.168.0.0/24"
                 }
             )
         )
-        rule2 = json.loads(rule_str)
+        rule = json.loads(rule_str)
         assert rule
-        assert rule2
+        with pytest.raises(Exception):
+            api.create_rule(
+                policy_id,
+                json.dumps(
+                    {
+                        "name": "Generic Rule",
+                        "ip_proto": "192.168.0.0/24",
+                        "source_ip": "192.168.0.0/24",
+                        "destination_ip": "192.168.0.0/24",
+                        "source_port": 80
+                    }
+                )
+            )
+
 
 
 class TestListPolicyRules:
@@ -102,4 +134,3 @@ class TestUpdatePolicy:
         rule = json.loads(api.read_rule(rule_policy_identifier_daniel))
         assert not rule
         # assert rule["name"] == "Updated Generic Rule"
-
